@@ -1,81 +1,166 @@
 <script lang="ts" setup>
-import { Post } from "@/types";
-import { defineProps, defineEmits } from "vue";
-import { useModal, useModalSlot } from "vue-final-modal";
-import Edit from "@/components/User/Post/Edit.vue";
+import { computed, ref } from "vue";
+import { Post, User } from "@/types";
 
-const props = defineProps<{ post: Post }>();
-const emit = defineEmits(["edit", "delete"]);
+const props = defineProps<{
+  post: Post;
+  users: User[];
+  currentUserId: number;
+}>();
+const emit = defineEmits(["editRequest", "delete", "move"]);
 
-const EditPostModal = useModal({
-  defaultModelValue: false,
-  attrs: {
-    clickToClose: true,
-    escToClose: true,
-  },
-  slots: {
-    default: useModalSlot({
-      component: Edit,
-      attrs: {
-        title: `Изменить пост ${props.post?.user?.username}`,
-        post: props.post,
-        onClose() {
-          EditPostModal.close();
-        },
-        onEdit(newValue: Post) {
-          emit("edit", newValue);
-        },
-      },
-    }),
-  },
-});
+const moving = ref(false);
+const moveTargets = computed(() =>
+  props.users.filter((u) => u.id !== props.currentUserId)
+);
 
-const editPost = (): void => {
-  EditPostModal.open();
+const requestEdit = (): void => {
+  emit("editRequest");
 };
 
 const deletePost = (): void => {
   emit("delete", props.post);
 };
+
+const onMoveSelect = (event: Event): void => {
+  const value = Number((event.target as HTMLSelectElement).value);
+  if (value) {
+    emit("move", value);
+    moving.value = false;
+  }
+};
 </script>
 
 <template>
-  <div class="post">
-    <h5>{{ post.title }}</h5>
-
+  <article class="post">
+    <h3 class="post__title">{{ post.title }}</h3>
     <p class="post__body">{{ post.body }}</p>
 
     <div class="post__panel">
-      <button @click="editPost">Изменить</button>
-
-      <button @click="deletePost">Удалить</button>
+      <button
+        class="btn btn--ghost btn--sm"
+        type="button"
+        :aria-label="`Изменить пост: ${post.title}`"
+        @click="requestEdit"
+      >
+        Изменить
+      </button>
+      <button
+        class="btn btn--danger btn--sm"
+        type="button"
+        :aria-label="`Удалить пост: ${post.title}`"
+        @click="deletePost"
+      >
+        Удалить
+      </button>
     </div>
-  </div>
+
+    <div v-if="moveTargets.length" class="post__move">
+      <button
+        v-if="!moving"
+        class="post__move__toggle"
+        type="button"
+        @click="moving = true"
+      >
+        <span aria-hidden="true">⇄</span> Переместить
+      </button>
+      <label v-else class="post__move__picker">
+        <span class="sr-only">Переместить пост к автору</span>
+        <select autofocus @change="onMoveSelect" @blur="moving = false">
+          <option value="" selected disabled>Выберите автора…</option>
+          <option v-for="u in moveTargets" :key="u.id" :value="u.id">
+            {{ u.username }}
+          </option>
+        </select>
+      </label>
+    </div>
+  </article>
 </template>
 
 <style lang="scss" scoped>
 .post {
-  box-shadow: 0px 2px 8px 0px rgba(34, 60, 80, 0.2);
-  background-color: #fbfbfb;
-  padding: 10px;
-  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-card);
+  padding: var(--sp-3) var(--sp-4);
+  box-shadow: var(--sh-sm);
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: var(--sp-2);
+  cursor: grab;
+  transition: box-shadow var(--dur-micro) var(--ease-out-expo),
+    transform var(--dur-micro) var(--ease-out-expo),
+    border-color var(--dur-micro) var(--ease-out-expo);
+
+  &:hover {
+    box-shadow: var(--sh-md);
+    transform: translateY(-3px);
+    border-color: var(--accent);
+  }
+  &:active {
+    cursor: grabbing;
+  }
+
+  &__title {
+    font-family: var(--font-display);
+    font-size: var(--t-card);
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ink);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
   &__body {
-    opacity: 0.7;
-    font-size: 14px;
+    font-size: var(--t-body);
+    line-height: 1.5;
+    color: var(--ink-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   &__panel {
     display: flex;
-    gap: 10px;
+    gap: var(--sp-2);
+    margin-top: var(--sp-1);
 
-    button {
+    .btn {
       flex: 1;
+    }
+  }
+
+  &__move {
+    margin-top: 2px;
+
+    &__toggle {
       width: 100%;
-      padding: 4px;
+      background: transparent;
+      border: none;
+      color: var(--ink-muted);
+      font-size: var(--t-meta);
+      padding: var(--sp-1) 0;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: color var(--dur-micro) var(--ease-out-expo);
+
+      &:hover {
+        color: var(--accent-strong);
+      }
+    }
+
+    &__picker select {
+      width: 100%;
+      font-size: var(--t-meta);
+      padding: var(--sp-2);
+      border: 1px solid var(--hairline);
+      border-radius: var(--r-ctrl);
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
     }
   }
 }

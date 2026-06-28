@@ -1,14 +1,17 @@
+export type FetchStatus = "idle" | "loading" | "error" | "ready";
+
 export interface User {
   id: number;
-  loading: boolean;
   username: string;
+  name?: string;
   posts: Post[];
+  status: FetchStatus;
 }
 
 export interface Post {
-  id?: number;
+  id: number;
   title: string;
   body: string;
-  user?: { username: string };
   userId: number;
+  user?: Pick<User, "username">;
 }

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { defineEmits, defineProps } from "vue";
 import { Post } from "@/types";
 import { Field, Form, ErrorMessage } from "vee-validate";
-import { object, required, string } from "yup";
+import { object, string } from "yup";
 
 const props = defineProps(["title", "user"]);
 const emit = defineEmits(["close", "add"]);
@@ -16,99 +15,63 @@ const closeForm = (): void => {
   emit("close");
 };
 
-const addPost = (post: Post): void => {
-  emit("add", post);
+const addPost = (post: unknown): void => {
+  emit("add", post as Post);
 };
 </script>
 
 <template>
-  <div class="form__wrapper">
+  <section
+    class="modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="add-modal-title"
+  >
+    <header class="modal-card__head">
+      <h2 id="add-modal-title" class="modal-card__title">{{ props.title }}</h2>
+      <button
+        class="modal-card__close"
+        type="button"
+        aria-label="Закрыть форму"
+        @click="closeForm"
+      >
+        <span aria-hidden="true">✕</span>
+      </button>
+    </header>
+
     <Form
-      class="form"
+      class="modal-card__form"
       :validation-schema="schema"
-      @submit="addPost"
       :initial-values="{ userId: user.id }"
+      @submit="addPost"
     >
-      <div class="form__header">
-        <h3>{{ props.title }}</h3>
-
-        <p @click="closeForm" class="form__header__close">Закрыть</p>
+      <div class="field">
+        <label class="field__label" for="add-title">Название</label>
+        <Field
+          id="add-title"
+          name="title"
+          placeholder="Краткий заголовок поста"
+          aria-describedby="add-title-error"
+        />
+        <ErrorMessage id="add-title-error" name="title" class="field__error" />
       </div>
 
-      <div class="form__input">
-        <label id="title">Название</label>
-
-        <Field id="title" name="title" placeholder="Title..." />
-
-        <ErrorMessage name="title" />
+      <div class="field">
+        <label class="field__label" for="add-body">Содержимое</label>
+        <Field
+          id="add-body"
+          name="body"
+          as="textarea"
+          rows="4"
+          placeholder="Текст поста…"
+          aria-describedby="add-body-error"
+        />
+        <ErrorMessage id="add-body-error" name="body" class="field__error" />
       </div>
 
-      <div class="form__input">
-        <label id="body">Содержимое</label>
-
-        <Field id="body" name="body" placeholder="Body..." />
-
-        <ErrorMessage name="body" />
-      </div>
-
-      <button class="form__button" type="submit">Добавить</button>
+      <button class="btn btn--primary modal-card__submit" type="submit">
+        Добавить пост
+      </button>
     </Form>
-  </div>
+  </section>
 </template>
-
-<style lang="scss" scoped>
-.form {
-  &__wrapper {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-
-    &__close {
-      cursor: pointer;
-    }
-  }
-
-  background: white;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-radius: 10px;
-  min-width: 350px;
-
-  &__input {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    width: 100%;
-
-    input,
-    textarea {
-      box-shadow: 0px 2px 8px 0px rgba(34, 60, 80, 0.2);
-      border: 0;
-      outline: none;
-      padding: 6px 10px;
-      resize: vertical;
-      width: 100%;
-      border-radius: 10px;
-    }
-  }
-
-  &__button {
-    width: 100%;
-    padding: 6px 10px;
-    border: 0;
-    border-radius: 10px;
-    box-shadow: 0px 2px 8px 0px rgba(34, 60, 80, 0.2);
-  }
-}
-</style>

@@ -3,6 +3,9 @@ import { createVfm } from "vue-final-modal";
 import App from "./App.vue";
 import router from "./router";
 
+import "@fontsource-variable/inter";
+import "@fontsource-variable/fraunces";
+
 import "./assets/scss/main.scss";
 import "vue-final-modal/style.css";
 

@@ -8,6 +8,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource-variable/inter": "^5.2.8",
     "core-js": "^3.8.3",
     "vee-validate": "^4.9.6",
     "vue": "^3.2.13",

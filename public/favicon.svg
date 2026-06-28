@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Atelier Ledger">
+  <!-- ochre tile (oklch 0.70 0.15 65) -->
+  <rect width="32" height="32" rx="7" fill="#c68a3a"/>
+  <!-- back index card, slightly tilted -->
+  <rect x="6.5" y="11.5" width="19" height="13" rx="2.6" fill="#efe7d8" transform="rotate(-5 16 18)"/>
+  <!-- front index card -->
+  <rect x="6.5" y="9.5" width="19" height="13.5" rx="2.6" fill="#fcfaf6"/>
+  <!-- ledger title line (ochre) -->
+  <rect x="9.5" y="13" width="13" height="2.4" rx="1.2" fill="#a8702a"/>
+  <!-- body lines (warm grey) -->
+  <rect x="9.5" y="17" width="11" height="1.8" rx="0.9" fill="#b7ac99"/>
+  <rect x="9.5" y="20" width="7.5" height="1.8" rx="0.9" fill="#cabfa9"/>
+</svg>
